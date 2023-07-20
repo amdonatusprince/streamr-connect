@@ -28,21 +28,26 @@ function App() {
     }
   };
 
+  
+
   useEffect(() => {
     // Function to create the data stream
     const createStream = async () => {
       try {
         // Replace '/your/namespace/yourstreamname' with your desired stream ID
-        const stream = await streamr.createStream({
+        const stream = await streamr.getOrCreateStream({
           id: '/amdonatusprince',
         });
         console.log('Stream created:', stream.id);
+        // const streamm = await streamr.getStream(stream.id);
+        // console.log("get stream", streamm)
       } catch (error) {
         console.error('Error creating the stream:', error);
       }
     };
 
     createStream();
+    
   }, []);
 
   useEffect(() => {
