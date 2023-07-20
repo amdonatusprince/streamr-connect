@@ -1,56 +1,89 @@
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react';
+import { Stream, StreamrClient } from 'streamr-client';
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
+const ETHEREUM_PRIVATE_KEY = import.meta.env.VITE_REACT_APP_PRIVATE_KEY;
 
-  // Function to fetch messages (mocked API call)
-  // rhhnn
-  const fetchMessages = async () => {
-    try {
-      const response = await axios.get(CHAT_SERVER_URL);
-      setMessages(response.data);
-    } catch (error) {
-      console.error("Error fetching messages:", error);
+const streamr = new StreamrClient({
+  auth: {
+    privateKey: ETHEREUM_PRIVATE_KEY,
+  },
+});
+
+function App() {
+  const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState([]);
+
+  const handleSubmit = async () => {
+    if (message.trim() !== '') {
+      try {
+        // Publish the message to the data stream
+        await streamr.publish('/amdonatusprince', { message });
+        setMessage('');
+      } catch (error) {
+        console.error('Error publishing message:', error);
+      }
     }
   };
 
-  // Function to handle form submission
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (newMessage.trim() === "") return;
-    // Replace the following line with your API call to send messages to the chat server
-    // For this example, we're just appending the new message to the messages array.
-    setMessages([...messages, { text: newMessage, sender: "You" }]);
-    setNewMessage("");
-  };
+  useEffect(() => {
+    // Function to create the data stream
+    const createStream = async () => {
+      try {
+        // Replace '/your/namespace/yourstreamname' with your desired stream ID
+        const stream = await streamr.createStream({
+          id: '/amdonatusprince',
+        });
+        console.log('Stream created:', stream.id);
+      } catch (error) {
+        console.error('Error creating the stream:', error);
+      }
+    };
+
+    createStream();
+  }, []);
+
+  useEffect(() => {
+    // Subscribe to incoming messages when the component mounts
+    const subscription = streamr.subscribe(
+      {
+        id: '/amdonatusprince',
+      },
+      (message) => {
+        // 'message' contains the incoming data
+        const incomingMessage = message;
+        setMessages((prevMessages) => [...prevMessages, incomingMessage]);
+      },
+      (error) => {
+        console.error('Error subscribing to the data stream:', error);
+      }
+    );
+
+    // Unsubscribe from the data stream when the component unmounts
+    return () => {
+      streamr.unsubscribe();
+    };
+  }, []);
 
 
   return (
     <>
+    <h1>My Streamr Dapp 💬</h1>
       <div>
-      <h1>Received Messages</h1>
-      {messages.map((message, index) => (
-          <div key={index} className="message">
-            <strong>{message.sender}:</strong> {message.text}
-          </div>
+      <h2>Incoming Messages 📩 </h2>
+       {/* Display incoming messages in this div */}
+       {messages.map((msg, index) => (
+          <p key={index}>{msg}</p>
         ))}
       </div>
-      <h1>Streamr Chat</h1>
+      <h2>Publish To Streamr 📨 </h2>
       <div className="card">
-      <form onSubmit={handleSubmit} className="message-input-form">
-        <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type your message..."
-        />
-        <button type="submit">Send</button>
-      </form>
+        {/* Input field for typing the message */}
+        <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
+        {/* Submit button */}
+        <button onClick={handleSubmit}>Send</button>
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
