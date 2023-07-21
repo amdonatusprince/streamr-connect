@@ -28,73 +28,59 @@ function App() {
     }
   };
 
-  
-
   useEffect(() => {
-    // Function to create the data stream
-    const createStream = async () => {
+    // Function to create the data stream and subscribe to incoming messages
+    const createStreamAndSubscribe = async () => {
       try {
-        // Replace '/your/namespace/yourstreamname' with your desired stream ID
+        // creating or getting stream
         const stream = await streamr.getOrCreateStream({
           id: '/amdonatusprince',
         });
         console.log('Stream created:', stream.id);
-        // const streamm = await streamr.getStream(stream.id);
-        // console.log("get stream", streamm)
+
+        // Subscribe to incoming messages
+        const subscription = streamr.subscribe(
+          {
+            id: '/amdonatusprince',
+          },
+          (message) => {
+            // 'message' contains the incoming data
+            const incomingMessage = message;
+            setMessages((prevMessages) => [...prevMessages, incomingMessage]);
+          },
+          (error) => {
+            console.error('Error subscribing to the data stream:', error);
+          }
+        );
       } catch (error) {
         console.error('Error creating the stream:', error);
       }
     };
 
-    createStream();
-    
+    createStreamAndSubscribe();
   }, []);
-
-  useEffect(() => {
-    // Subscribe to incoming messages when the component mounts
-    const subscription = streamr.subscribe(
-      {
-        id: '/amdonatusprince',
-      },
-      (message) => {
-        // 'message' contains the incoming data
-        const incomingMessage = message;
-        setMessages((prevMessages) => [...prevMessages, incomingMessage]);
-      },
-      (error) => {
-        console.error('Error subscribing to the data stream:', error);
-      }
-    );
-
-    // Unsubscribe from the data stream when the component unmounts
-    return () => {
-      streamr.unsubscribe();
-    };
-  }, []);
-
 
   return (
     <>
-    <h1>My Streamr Dapp 💬</h1>
+      <h1>My Streamr Dapp 💬</h1>
       <div>
-      <h2>Incoming Messages 📩 </h2>
-       {/* Display incoming messages in this div */}
-       {messages.map((msg, index) => (
-          <p key={index}>{msg}</p>
+        <h2>Incoming Messages 📩</h2>
+        {/* Display incoming messages in this div */}
+        {messages.map((msgObj, index) => (
+          <p key={index}>
+            <strong>You:</strong> {msgObj.message}
+          </p>
         ))}
       </div>
-      <h2>Publish To Streamr 📨 </h2>
+      <h2>Publish To Streamr 📨</h2>
       <div className="card">
-        {/* Input field for typing the message */}
         <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
-        {/* Submit button */}
         <button onClick={handleSubmit}>Send</button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <p className="read-the-docs">Made with ❤️ for Streamr Network</p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
+
