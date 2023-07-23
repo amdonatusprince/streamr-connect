@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Stream, StreamrClient } from 'streamr-client';
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 const ETHEREUM_PRIVATE_KEY = import.meta.env.VITE_REACT_APP_PRIVATE_KEY;
@@ -15,6 +13,7 @@ const streamr = new StreamrClient({
 function App() {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [streamId, setStreamId] = useState('');
 
   const handleSubmit = async () => {
     if (message.trim() !== '') {
@@ -36,7 +35,7 @@ function App() {
         const stream = await streamr.getOrCreateStream({
           id: '/amdonatusprince',
         });
-        console.log('Stream created:', stream.id);
+        setStreamId(stream.id);
 
         // Subscribe to incoming messages
         const subscription = streamr.subscribe(
@@ -64,6 +63,7 @@ function App() {
     <>
       <h1>My Streamr Dapp 💬</h1>
       <div>
+        <p>Stream ID: <strong>{streamId}</strong></p>
         <h2>Incoming Messages 📩</h2>
         {/* Display incoming messages in this div */}
         {messages.map((msgObj, index) => (
