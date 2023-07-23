@@ -77,7 +77,12 @@ function App() {
         <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} />
         <button onClick={handleSubmit}>Send</button>
       </div>
-      <p className="read-the-docs">Made with ❤️ for Streamr Network</p>
+         <p className="read-the-docs">
+        Made with ❤️ for{' '}
+        <a href="https://docs.streamr.network/" target="_blank" rel="noopener noreferrer">
+          Streamr Network
+        </a>
+        </p>
     </>
   );
 }
