@@ -1,6 +1,6 @@
 # Integrating With Streamr Network
 ---
 
-A simple React chat dApp that enables data transmission across devices using the Streamr Network. 
+<p>A simple React chat dApp that enables data transmission across devices using the Streamr Network.</p>
 
-Specifically, this application allows users to send chat messages from sender A to recipient B via a data stream. 
+<p>Specifically, this application allows users to send chat messages from sender A to recipient B via a data stream. </p>
